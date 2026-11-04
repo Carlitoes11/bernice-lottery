@@ -23,7 +23,7 @@
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #070a12;
+      background-color: #0d121c;
       color: #f1f5f9;
       overscroll-behavior: none;
       -webkit-tap-highlight-color: transparent;
@@ -40,10 +40,10 @@
     }
 
     .glass-card {
-      background: rgba(15, 23, 42, 0.75);
+      background: rgba(22, 30, 49, 0.85);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(212, 175, 55, 0.2);
+      border: 1px solid rgba(212, 175, 55, 0.15);
     }
 
     @keyframes colossalPop {
@@ -77,7 +77,7 @@
       </div>
       <div>
         <h1 class="text-base font-extrabold tracking-tight gold-gradient-text leading-tight">Bernice Lottery</h1>
-        <p class="text-[10px] font-semibold tracking-widest uppercase text-slate-400">Exclusive Edition</p>
+        <p class="text-[10px] font-semibold tracking-widest uppercase text-slate-400">Custom Inspired Edition</p>
       </div>
     </div>
 
@@ -112,52 +112,47 @@
     <div class="glass-card rounded-2xl p-3.5 space-y-2.5 shadow-xl">
       <div class="flex items-center justify-between">
         <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Total Numbers on Wheel</span>
-        <span id="itemCountDisplay" class="text-sm font-black text-amber-400">30</span>
+        <span id="itemCountDisplay" class="text-sm font-black text-amber-400">12</span>
       </div>
 
       <!-- Stepper and Slider -->
       <div class="flex items-center space-x-3">
         <button id="decrementBtn" class="w-8 h-8 rounded-lg bg-slate-800 text-amber-400 font-bold hover:bg-slate-700 active:scale-95 transition flex items-center justify-center">−</button>
-        <input id="itemCountSlider" type="range" min="2" max="100" value="30" class="flex-1 accent-amber-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg">
+        <input id="itemCountSlider" type="range" min="2" max="100" value="12" class="flex-1 accent-amber-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg">
         <button id="incrementBtn" class="w-8 h-8 rounded-lg bg-slate-800 text-amber-400 font-bold hover:bg-slate-700 active:scale-95 transition flex items-center justify-center">+</button>
       </div>
 
       <!-- Quick Preset Chips -->
       <div class="flex items-center justify-between gap-1 pt-1">
         <button data-preset="10" class="preset-chip flex-1 py-1 rounded-md text-[11px] font-bold bg-slate-800/80 text-slate-300 hover:text-amber-300">10</button>
+        <button data-preset="12" class="preset-chip flex-1 py-1 rounded-md text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">12</button>
         <button data-preset="20" class="preset-chip flex-1 py-1 rounded-md text-[11px] font-bold bg-slate-800/80 text-slate-300 hover:text-amber-300">20</button>
-        <button data-preset="30" class="preset-chip flex-1 py-1 rounded-md text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">30</button>
+        <button data-preset="30" class="preset-chip flex-1 py-1 rounded-md text-[11px] font-bold bg-slate-800/80 text-slate-300 hover:text-amber-300">30</button>
         <button data-preset="50" class="preset-chip flex-1 py-1 rounded-md text-[11px] font-bold bg-slate-800/80 text-slate-300 hover:text-amber-300">50</button>
-        <button data-preset="100" class="preset-chip flex-1 py-1 rounded-md text-[11px] font-bold bg-slate-800/80 text-slate-300 hover:text-amber-300">100</button>
       </div>
     </div>
   </div>
 
   <!-- Wheel Canvas Center Area -->
   <main class="flex-1 flex flex-col items-center justify-center relative min-h-0 px-4">
-    <!-- Top Pointer / Ticker -->
-    <div id="pointer" class="absolute z-20 top-2 sm:top-4 transition-transform duration-75">
-      <svg class="w-9 h-11 filter drop-shadow-[0_4px_12px_rgba(212,175,55,0.7)]" viewBox="0 0 36 44" fill="none">
-        <path d="M18 44L2 10C-1 5 1 0 7 0H29C35 0 37 5 34 10L18 44Z" fill="url(#pointerGoldGrad)"/>
-        <path d="M18 36L6 8H30L18 36Z" fill="#1e1b4b"/>
-        <defs>
-          <linearGradient id="pointerGoldGrad" x1="0" y1="0" x2="36" y2="44" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#fffbeb"/>
-            <stop offset="0.5" stop-color="#fbbf24"/>
-            <stop offset="1" stop-color="#b45309"/>
-          </linearGradient>
-        </defs>
-      </svg>
+    <!-- Offset Pointer Container matching the upper right (58 degrees/roughly top-right) placement from image_0.png -->
+    <div id="pointerContainer" class="absolute z-20 pointer-events-none" style="width: 320px; height: 320px;">
+      <!-- White teardrop marker angled downwards pointing toward the wheel edge -->
+      <div id="pointer" class="absolute w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg transition-transform duration-75" 
+           style="top: 0px; right: 14px; transform-origin: 50% 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+         <!-- Small inner triangular/drop pointer shape matching the exact angle -->
+         <div class="w-4 h-4 bg-white rotate-45 absolute" style="top: 25px; left: 10px;"></div>
+      </div>
     </div>
 
-    <!-- Canvas Wrapper with Metallic Trim -->
-    <div class="relative p-2.5 rounded-full bg-gradient-to-b from-amber-400/40 via-amber-800/20 to-slate-900/60 shadow-[0_0_50px_rgba(0,0,0,0.85)]">
+    <!-- Canvas Wrapper with custom metallic studded trim -->
+    <div class="relative p-3 rounded-full bg-slate-900 shadow-[0_0_55px_rgba(0,0,0,0.9)] border-4 border-[#161e31]">
       <canvas id="wheelCanvas" class="rounded-full cursor-grab active:cursor-grabbing block touch-none"></canvas>
       
-      <!-- Center Hub Button -->
-      <button id="centerHubBtn" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-amber-700 via-amber-400 to-yellow-100 p-1 shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform" aria-label="Spin Wheel">
-        <div class="w-full h-full rounded-full bg-[#0b0f19] flex flex-col items-center justify-center border border-amber-300/40">
-          <span class="text-[10px] sm:text-xs font-black tracking-widest text-amber-300 uppercase">Spin</span>
+      <!-- Tiny Center Center Glass Hub Hub -->
+      <button id="centerHubBtn" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-amber-700 via-amber-400 to-yellow-100 p-0.5 shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform" aria-label="Spin Wheel">
+        <div class="w-full h-full rounded-full bg-[#0d121c] flex flex-col items-center justify-center border border-amber-300/35">
+          <span class="text-[9px] sm:text-[10px] font-black tracking-widest text-amber-300 uppercase">Go</span>
         </div>
       </button>
     </div>
@@ -166,7 +161,7 @@
   <!-- Bottom CTA Bar -->
   <footer class="safe-bottom px-6 pt-3 flex flex-col items-center space-y-2 z-10">
     <button id="spinBtn" class="w-full max-w-sm py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-slate-950 font-black text-lg tracking-wider uppercase shadow-xl hover:brightness-110 active:scale-[0.98] transition gold-glow">
-      Spin the Wheel
+      SPIN THE WHEEL
     </button>
     <p class="text-[11px] font-semibold text-slate-400">Tap button or swipe wheel directly</p>
   </footer>
@@ -199,9 +194,9 @@
 
   <!-- Spin History Slide-Up Sheet -->
   <div id="historySheet" class="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col justify-end">
-    <div id="historySheetContent" class="bg-[#0b0f19] border-t border-amber-400/20 rounded-t-3xl max-h-[75vh] flex flex-col translate-y-full transition-transform duration-300 safe-bottom">
+    <div id="historySheetContent" class="bg-[#0d121c] border-t border-amber-400/20 rounded-t-3xl max-h-[75vh] flex flex-col translate-y-full transition-transform duration-300 safe-bottom">
       <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto my-3"></div>
-      <div class="px-5 pb-3 flex items-center justify-between border-b border-slate-800">
+      <div class="px-5 pb-3 flex items-center justify-between border-b border-slate-850">
         <div>
           <h3 class="font-extrabold text-base gold-gradient-text">Draw History</h3>
           <p class="text-[11px] text-slate-400 font-medium">Recent spins this session</p>
@@ -217,7 +212,7 @@
   <!-- App Script -->
   <script>
     // App State
-    let totalItems = 30;
+    let totalItems = 12;
     let currentAngle = 0;
     let angularVelocity = 0;
     let isSpinning = false;
@@ -225,12 +220,20 @@
     let history = [];
     let lastPegIndex = -1;
 
-    // Palette (4-Color repeating luxury modern palette)
-    const segmentColors = [
-      '#1e1b4b', // Midnight Indigo
-      '#064e3b', // Deep Emerald
-      '#312e81', // Royal Violet
-      '#134e4a'  // Dark Teal
+    // Rich 12-segment multi-color exact palette matched & ordered from image_0.png 
+    const customSegmentsPalette = [
+      '#0e5387', // Dark Blue (top right relative)
+      '#0570b5', // Blue
+      '#0e97cd', // Cyan/Blue Gradient Match 1
+      '#02a4a7', // Teal/Turquoise
+      '#573489', // Violet/Purple
+      '#7f4a97', // Soft Purple/Magenta blend
+      '#cd1e7f', // Pink/Magenta
+      '#db4d26', // Red-Orange
+      '#ee8423', // Orange
+      '#f6b135', // Yellow-Orange
+      '#7dae3a', // Light Green
+      '#2a7336'  // Dark Green
     ];
 
     // DOM Elements
@@ -239,6 +242,7 @@
     const spinBtn = document.getElementById('spinBtn');
     const centerHubBtn = document.getElementById('centerHubBtn');
     const pointer = document.getElementById('pointer');
+    const pointerContainer = document.getElementById('pointerContainer');
     const soundToggle = document.getElementById('soundToggle');
     const soundIcon = document.getElementById('soundIcon');
     const winnerModal = document.getElementById('winnerModal');
@@ -316,6 +320,10 @@
       canvas.style.width = `${size}px`;
       canvas.style.height = `${size}px`;
 
+      // Synchronize exact absolute width boundaries of overlay pointers/anchors
+      pointerContainer.style.width = `${size}px`;
+      pointerContainer.style.height = `${size}px`;
+
       ctx.scale(dpr, dpr);
       drawWheel();
     }
@@ -324,60 +332,87 @@
     function drawWheel() {
       const size = parseFloat(canvas.style.width) || 320;
       const center = size / 2;
-      const radius = center - 8;
+      const borderThickness = 18; // White thick border inspired by image_0.png
+      const radius = center - borderThickness - 2; 
       const arc = (2 * Math.PI) / totalItems;
 
       ctx.clearRect(0, 0, size, size);
+
+      // Outer Thick White Border / Housing seen in image_0.png
+      ctx.beginPath();
+      ctx.arc(center, center, center - 2, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = 'rgba(0,0,0,0.55)';
+      ctx.shadowBlur = 10;
+      ctx.fill();
+
+      // Inside drop shadow to make center wheel 3D
+      ctx.beginPath();
+      ctx.arc(center, center, radius + 2, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 0; // Reset blur
+      ctx.fill();
 
       ctx.save();
       ctx.translate(center, center);
       ctx.rotate(currentAngle);
 
       for (let i = 0; i < totalItems; i++) {
-        const angle = i * arc;
+        // Start angle: - Math.PI / 2 ensures segment '1' aligns around Top-Right as per visual standard & offset
+        const angle = i * arc - Math.PI / 2;
 
-        // Slice
+        // Wheel Slice
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.arc(0, 0, radius, angle, angle + arc);
         ctx.closePath();
-        ctx.fillStyle = segmentColors[i % segmentColors.length];
+        ctx.fillStyle = customSegmentsPalette[i % customSegmentsPalette.length];
         ctx.fill();
 
-        // Divider
-        ctx.lineWidth = 1.5;
-        ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+        // Overlay slice border for high contrast segments
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
         ctx.stroke();
 
-        // Number Label
+        // Number Label inside
         ctx.save();
         ctx.rotate(angle + arc / 2);
         ctx.textAlign = 'right';
         ctx.fillStyle = '#ffffff';
         
-        // Dynamic font sizing based on slice count
-        const fontSize = Math.max(9, Math.min(18, 380 / totalItems));
+        // Size scale based on segments
+        const fontSize = Math.max(9, Math.min(22, 420 / totalItems));
         ctx.font = `800 ${fontSize}px 'Plus Jakarta Sans', sans-serif`;
-        ctx.shadowColor = 'rgba(0,0,0,0.8)';
-        ctx.shadowBlur = 4;
-        ctx.fillText(i + 1, radius - 16, fontSize / 3);
+        ctx.shadowColor = 'rgba(0,0,0,0.45)';
+        ctx.shadowBlur = 3;
+        ctx.fillText(i + 1, radius - 20, fontSize / 3.3);
         ctx.restore();
       }
 
-      // Outer Pegs
-      for (let i = 0; i < totalItems; i++) {
-        const pegAngle = i * arc;
-        const px = Math.cos(pegAngle) * (radius - 4);
-        const py = Math.sin(pegAngle) * (radius - 4);
+      ctx.restore();
+
+      // Render the tiny metallic gold "pegs" (the small studs) on the white outer margin from image_2.png
+      const numPegs = Math.max(24, totalItems * 2); // Populate natural density of boundary pegs based on image_0.png aesthetic
+      const pegArc = (2 * Math.PI) / numPegs;
+      for (let i = 0; i < numPegs; i++) {
+        const pegAngle = i * pegArc;
+        const px = center + Math.cos(pegAngle) * (center - 9);
+        const py = center + Math.sin(pegAngle) * (center - 9);
+        
+        // 3D Brass/Gold pin styling based on image_2.png
         ctx.beginPath();
-        ctx.arc(px, py, 2.5, 0, 2 * Math.PI);
+        ctx.arc(px, py, 4, 0, 2 * Math.PI);
+        ctx.fillStyle = '#d4af37';
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = 2;
+        ctx.fill();
+        
+        // Tiny highlights on brass/metallic pins
+        ctx.beginPath();
+        ctx.arc(px - 1, py - 1, 1.2, 0, 2 * Math.PI);
         ctx.fillStyle = '#fef08a';
-        ctx.shadowColor = 'rgba(212, 175, 55, 0.8)';
-        ctx.shadowBlur = 6;
         ctx.fill();
       }
-
-      ctx.restore();
     }
 
     // Physics Animation Loop
@@ -390,19 +425,18 @@
       // Deceleration
       angularVelocity *= 0.988;
 
-      // Pointer Peg Collision Check (Top needle at 3*PI/2)
+      // Pointer Peg Collision Check (Top needle at 3*PI/2 - but shifted to the side 38 degrees for image_0 pointer)
       const arc = (2 * Math.PI) / totalItems;
-      const normalizedAngle = (2 * Math.PI - (currentAngle % (2 * Math.PI))) % (2 * Math.PI);
-      const needleAngle = (1.5 * Math.PI);
-      const relativeAngle = (needleAngle - currentAngle + 4 * Math.PI) % (2 * Math.PI);
-      const currentPeg = Math.floor(relativeAngle / arc);
+      const targetPointerAngle = (1.92 * Math.PI); // Top-right pointer (approx 52 to 58 deg)
+      const relativeAngle = (targetPointerAngle - currentAngle + 4 * Math.PI) % (2 * Math.PI);
+      const currentPeg = Math.floor((relativeAngle + Math.PI/2) / arc); // relative translation shift to align pegs
 
       if (currentPeg !== lastPegIndex) {
         lastPegIndex = currentPeg;
         playTickSound();
         if (navigator.vibrate) navigator.vibrate(8);
-        pointer.style.transform = 'translateY(-3px) scale(1.08)';
-        setTimeout(() => pointer.style.transform = 'translateY(0) scale(1)', 60);
+        pointer.style.transform = 'scale(1.15) rotate(-3deg)';
+        setTimeout(() => pointer.style.transform = 'scale(1) rotate(0deg)', 60);
       }
 
       drawWheel();
@@ -448,10 +482,10 @@
       toggleControls(true);
 
       const arc = (2 * Math.PI) / totalItems;
-      // Needle apex is at top: 3*PI / 2
-      const topPointerRadian = (1.5 * Math.PI - currentAngle) % (2 * Math.PI);
-      const normalizedRadian = (topPointerRadian + 2 * Math.PI) % (2 * Math.PI);
-      const winningIndex = Math.floor(normalizedRadian / arc) + 1;
+      // Target pointer intersection calibration
+      const relativeTopRightPointer = (1.85 * Math.PI - currentAngle) % (2 * Math.PI);
+      const topPointerRadian = (relativeTopRightPointer + 2 * Math.PI) % (2 * Math.PI);
+      const winningIndex = Math.floor(topPointerRadian / arc) + 1;
 
       // Log & Update History
       const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -467,7 +501,7 @@
         particleCount: 80,
         spread: 90,
         origin: { y: 0.5 },
-        colors: ['#fef08a', '#d4af37', '#10b981', '#6366f1']
+        colors: ['#0e97cd', '#cd1e7f', '#ee8423', '#2a7336']
       });
 
       // Display Full-Screen Number
@@ -612,4 +646,3 @@
   </script>
 </body>
 </html>
-
