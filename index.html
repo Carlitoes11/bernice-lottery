@@ -1,1 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Bernice Lottery</title>
+  
+  <!-- Mobile & PWA meta tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#070a12">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/png" href="icon.png">
+
+  <!-- Tailwind CSS & Google Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #070a12;
+      color: #f1f5f9;
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .safe-top { padding-top: max(env(safe-area-inset-top), 16px); }
+    .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 16px); }
+
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #fef08a 0%, #d4af37 50%, #996515 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    @keyframes colossalPop {
+      0% { transform: scale(0.35); opacity: 0; filter: blur(12px); }
+      70% { transform: scale(1.06); opacity: 1; filter: blur(0); }
+      100% { transform: scale(1); }
+    }
+
+    .animate-colossal {
+      animation: colossalPop 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .gold-glow {
+      box-shadow: 0 0 35px -5px rgba(212, 175, 55, 0.35);
+    }
+  </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex flex-col justify-between relative">
+
+  <!-- Ambient Glows -->
+  <div class="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-32 left-1/2 -translate-x-1/2 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- Header -->
+  <header class="safe-top px-5 pb-3 flex items-center justify-between z-10">
+    <div class="flex items-center space-x-2.5">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 via-amber-400 to-yellow-200 flex items-center justify-center shadow-lg shadow-amber-900/40">
+        <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-base font-extrabold tracking-tight gold-gradient-text leading-tight">Bernice Lottery</h1>
+        <p class="text-[10px] font-semibold tracking-widest uppercase text-slate-400">Exclusive Edition</p>
+      </div>
+    </div>
+
+    <!-- Quick Controls -->
+    <div class="flex items-center space-x-2">
+      <!-- Toggle Settings Button -->
+      <button id="toggleSettingsBtn" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-slate-300 hover:text-amber-400 transition" aria-label="Settings">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/>
+        </svg>
+      </button>
+
+      <!-- Audio Toggle -->
+      <button id="soundToggle" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-slate-300 hover:text-amber-400 transition" aria-label="Toggle Sound">
+        <svg id="soundIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.757 3.63 8.25 4.51 8.25H6.75z"/>
+        </svg>
+      </button>
+
+      <!-- History Sheet Trigger -->
+      <button id="openHistoryBtn" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-slate-300 hover:text-amber-400 relative transition" aria-label="Open History">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span id="historyBadge" class="hidden absolute -top-1 -right-1 w-4 h-4 bg-amber-400 text-black text-[9px] font-black rounded-full flex items-center justify-center">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Number Selector Drawer / Panel -->
+  <div id="settingsPanel" class="px-5 pb-2 z-10 transition-all duration-300">
+    <div class="glass-card rounded-2xl p-3.5 space-y-2.5 shadow-xl">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Total Numbers on Wheel</span>
+        <span id="itemCountDisplay" class="text-sm font-black text-amber-400">30</span>
+      </div>
+
+      <!-- Stepper and Slider -->
+      <div class="flex items-center space-x-3">
+        <button id="decrementBtn" class="w-8 h-8 rounded-lg bg-slate-800 text-amber-400 font-bold hover:bg-slate-700 active:scale-95 transition flex items-center justify-center">−</button>
+        <input id="itemCountSlider" type="range" min="2" max="100" value="30" class="flex-1 accent-amber-400 cursor-pointer h-1.5 bg-slate-800 rounded-lg">
+        <button id="incrementBtn" class="w-8 h-8 rounded-lg bg-slate-800 text-amber-400 font-bold hover:bg-slate-700 active:scale-95 transition flex items-center justify-center">+</button>
+      </div>
+
+      <!-- Quick Preset Chips -->
+      <div class="flex items-center justify-between gap-1 pt-1">
+        <button data-preset="10" class="preset-chip flex-1 py-1 rounded-md text-[11px] font-bold bg-slate-800/80 text-slate-300 hover:text-amber-300">10</button>
+        <button data-preset="20" class="preset-chip flex-1 py-1 rounded-md text-[11px] font-bold bg-slate-800/80 text-slate-300 hover:text-amber-300">20</button>
+        <button data-preset="30" class="preset-chip flex-1 py-1 rounded-md text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">30</button>
+        <button data-preset="50" class="preset-chip flex-1 py-1 rounded-md text-[11px] font-bold bg-slate-800/80 text-slate-300 hover:text-amber-300">50</button>
+        <button data-preset="100" class="preset-chip flex-1 py-1 rounded-md text-[11px] font-bold bg-slate-800/80 text-slate-300 hover:text-amber-300">100</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wheel Canvas Center Area -->
+  <main class="flex-1 flex flex-col items-center justify-center relative min-h-0 px-4">
+    <!-- Top Pointer / Ticker -->
+    <div id="pointer" class="absolute z-20 top-2 sm:top-4 transition-transform duration-75">
+      <svg class="w-9 h-11 filter drop-shadow-[0_4px_12px_rgba(212,175,55,0.7)]" viewBox="0 0 36 44" fill="none">
+        <path d="M18 44L2 10C-1 5 1 0 7 0H29C35 0 37 5 34 10L18 44Z" fill="url(#pointerGoldGrad)"/>
+        <path d="M18 36L6 8H30L18 36Z" fill="#1e1b4b"/>
+        <defs>
+          <linearGradient id="pointerGoldGrad" x1="0" y1="0" x2="36" y2="44" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#fffbeb"/>
+            <stop offset="0.5" stop-color="#fbbf24"/>
+            <stop offset="1" stop-color="#b45309"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+
+    <!-- Canvas Wrapper with Metallic Trim -->
+    <div class="relative p-2.5 rounded-full bg-gradient-to-b from-amber-400/40 via-amber-800/20 to-slate-900/60 shadow-[0_0_50px_rgba(0,0,0,0.85)]">
+      <canvas id="wheelCanvas" class="rounded-full cursor-grab active:cursor-grabbing block touch-none"></canvas>
+      
+      <!-- Center Hub Button -->
+      <button id="centerHubBtn" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-amber-700 via-amber-400 to-yellow-100 p-1 shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform" aria-label="Spin Wheel">
+        <div class="w-full h-full rounded-full bg-[#0b0f19] flex flex-col items-center justify-center border border-amber-300/40">
+          <span class="text-[10px] sm:text-xs font-black tracking-widest text-amber-300 uppercase">Spin</span>
+        </div>
+      </button>
+    </div>
+  </main>
+
+  <!-- Bottom CTA Bar -->
+  <footer class="safe-bottom px-6 pt-3 flex flex-col items-center space-y-2 z-10">
+    <button id="spinBtn" class="w-full max-w-sm py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-slate-950 font-black text-lg tracking-wider uppercase shadow-xl hover:brightness-110 active:scale-[0.98] transition gold-glow">
+      Spin the Wheel
+    </button>
+    <p class="text-[11px] font-semibold text-slate-400">Tap button or swipe wheel directly</p>
+  </footer>
+
+  <!-- Monumental Full-Screen Winning Modal -->
+  <div id="winnerModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.18)_0%,transparent_70%)]"></div>
+
+    <div class="relative z-10 w-full max-w-md px-6 flex flex-col items-center text-center">
+      <div class="w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center mb-3">
+        <svg class="w-6 h-6 text-amber-400" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+      </div>
+
+      <p class="text-sm font-black uppercase tracking-[0.25em] text-amber-300/80 mb-2">Winning Number</p>
+
+      <!-- Massive Winning Number -->
+      <div id="colossalNumber" class="text-[34vw] sm:text-[140px] font-black leading-none tracking-tighter gold-gradient-text filter drop-shadow-[0_10px_35px_rgba(212,175,55,0.5)] my-2">
+        --
+      </div>
+
+      <p class="text-slate-400 text-xs font-semibold max-w-xs mt-2 mb-8">Selected fairly at random by Bernice Lottery</p>
+
+      <button id="spinAgainBtn" class="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 font-black text-base uppercase tracking-wider shadow-2xl active:scale-95 transition">
+        Spin Again
+      </button>
+    </div>
+  </div>
+
+  <!-- Spin History Slide-Up Sheet -->
+  <div id="historySheet" class="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex flex-col justify-end">
+    <div id="historySheetContent" class="bg-[#0b0f19] border-t border-amber-400/20 rounded-t-3xl max-h-[75vh] flex flex-col translate-y-full transition-transform duration-300 safe-bottom">
+      <div class="w-12 h-1.5 bg-slate-700 rounded-full mx-auto my-3"></div>
+      <div class="px-5 pb-3 flex items-center justify-between border-b border-slate-800">
+        <div>
+          <h3 class="font-extrabold text-base gold-gradient-text">Draw History</h3>
+          <p class="text-[11px] text-slate-400 font-medium">Recent spins this session</p>
+        </div>
+        <button id="clearHistoryBtn" class="text-xs font-bold text-red-400 hover:text-red-300">Clear</button>
+      </div>
+      <div id="historyList" class="p-5 overflow-y-auto space-y-2 flex-1">
+        <p class="text-xs text-slate-500 text-center py-6">No draws yet. Spin to record numbers.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Script -->
+  <script>
+    // App State
+    let totalItems = 30;
+    let currentAngle = 0;
+    let angularVelocity = 0;
+    let isSpinning = false;
+    let soundEnabled = true;
+    let history = [];
+    let lastPegIndex = -1;
+
+    // Palette (4-Color repeating luxury modern palette)
+    const segmentColors = [
+      '#1e1b4b', // Midnight Indigo
+      '#064e3b', // Deep Emerald
+      '#312e81', // Royal Violet
+      '#134e4a'  // Dark Teal
+    ];
+
+    // DOM Elements
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const spinBtn = document.getElementById('spinBtn');
+    const centerHubBtn = document.getElementById('centerHubBtn');
+    const pointer = document.getElementById('pointer');
+    const soundToggle = document.getElementById('soundToggle');
+    const soundIcon = document.getElementById('soundIcon');
+    const winnerModal = document.getElementById('winnerModal');
+    const colossalNumber = document.getElementById('colossalNumber');
+    const spinAgainBtn = document.getElementById('spinAgainBtn');
+    const openHistoryBtn = document.getElementById('openHistoryBtn');
+    const historySheet = document.getElementById('historySheet');
+    const historySheetContent = document.getElementById('historySheetContent');
+    const historyList = document.getElementById('historyList');
+    const historyBadge = document.getElementById('historyBadge');
+    const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    const toggleSettingsBtn = document.getElementById('toggleSettingsBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const itemCountSlider = document.getElementById('itemCountSlider');
+    const itemCountDisplay = document.getElementById('itemCountDisplay');
+    const incrementBtn = document.getElementById('incrementBtn');
+    const decrementBtn = document.getElementById('decrementBtn');
+    const presetChips = document.querySelectorAll('.preset-chip');
+
+    // Web Audio Synthesizer
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTickSound() {
+      if (!soundEnabled || !audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(650, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + 0.035);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.035);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.035);
+      } catch (e) {}
+    }
+
+    function playCelebrationChime() {
+      if (!soundEnabled || !audioCtx) return;
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C E G C
+      notes.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        const start = audioCtx.currentTime + idx * 0.09;
+        gain.gain.setValueAtTime(0.25, start);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.6);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(start);
+        osc.stop(start + 0.6);
+      });
+    }
+
+    // Responsive Canvas Sizing
+    function resizeCanvas() {
+      const containerWidth = canvas.parentElement.parentElement.clientWidth;
+      const containerHeight = canvas.parentElement.parentElement.clientHeight;
+      const size = Math.min(containerWidth - 32, containerHeight - 48, 480);
+      const dpr = window.devicePixelRatio || 1;
+
+      canvas.width = size * dpr;
+      canvas.height = size * dpr;
+      canvas.style.width = `${size}px`;
+      canvas.style.height = `${size}px`;
+
+      ctx.scale(dpr, dpr);
+      drawWheel();
+    }
+
+    // Render Wheel
+    function drawWheel() {
+      const size = parseFloat(canvas.style.width) || 320;
+      const center = size / 2;
+      const radius = center - 8;
+      const arc = (2 * Math.PI) / totalItems;
+
+      ctx.clearRect(0, 0, size, size);
+
+      ctx.save();
+      ctx.translate(center, center);
+      ctx.rotate(currentAngle);
+
+      for (let i = 0; i < totalItems; i++) {
+        const angle = i * arc;
+
+        // Slice
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, angle, angle + arc);
+        ctx.closePath();
+        ctx.fillStyle = segmentColors[i % segmentColors.length];
+        ctx.fill();
+
+        // Divider
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+        ctx.stroke();
+
+        // Number Label
+        ctx.save();
+        ctx.rotate(angle + arc / 2);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#ffffff';
+        
+        // Dynamic font sizing based on slice count
+        const fontSize = Math.max(9, Math.min(18, 380 / totalItems));
+        ctx.font = `800 ${fontSize}px 'Plus Jakarta Sans', sans-serif`;
+        ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = 4;
+        ctx.fillText(i + 1, radius - 16, fontSize / 3);
+        ctx.restore();
+      }
+
+      // Outer Pegs
+      for (let i = 0; i < totalItems; i++) {
+        const pegAngle = i * arc;
+        const px = Math.cos(pegAngle) * (radius - 4);
+        const py = Math.sin(pegAngle) * (radius - 4);
+        ctx.beginPath();
+        ctx.arc(px, py, 2.5, 0, 2 * Math.PI);
+        ctx.fillStyle = '#fef08a';
+        ctx.shadowColor = 'rgba(212, 175, 55, 0.8)';
+        ctx.shadowBlur = 6;
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    // Physics Animation Loop
+    function updatePhysics() {
+      if (!isSpinning) return;
+
+      currentAngle += angularVelocity;
+      currentAngle %= (2 * Math.PI);
+
+      // Deceleration
+      angularVelocity *= 0.988;
+
+      // Pointer Peg Collision Check (Top needle at 3*PI/2)
+      const arc = (2 * Math.PI) / totalItems;
+      const normalizedAngle = (2 * Math.PI - (currentAngle % (2 * Math.PI))) % (2 * Math.PI);
+      const needleAngle = (1.5 * Math.PI);
+      const relativeAngle = (needleAngle - currentAngle + 4 * Math.PI) % (2 * Math.PI);
+      const currentPeg = Math.floor(relativeAngle / arc);
+
+      if (currentPeg !== lastPegIndex) {
+        lastPegIndex = currentPeg;
+        playTickSound();
+        if (navigator.vibrate) navigator.vibrate(8);
+        pointer.style.transform = 'translateY(-3px) scale(1.08)';
+        setTimeout(() => pointer.style.transform = 'translateY(0) scale(1)', 60);
+      }
+
+      drawWheel();
+
+      // Stop Condition
+      if (angularVelocity < 0.0018) {
+        isSpinning = false;
+        angularVelocity = 0;
+        concludeSpin();
+        return;
+      }
+
+      requestAnimationFrame(updatePhysics);
+    }
+
+    // Start Spin
+    function triggerSpin(velocityBoost = null) {
+      if (isSpinning) return;
+      initAudio();
+
+      isSpinning = true;
+      toggleControls(false);
+
+      // Set velocity (flick velocity or random momentum)
+      angularVelocity = velocityBoost || (0.28 + Math.random() * 0.18);
+      requestAnimationFrame(updatePhysics);
+    }
+
+    function toggleControls(enabled) {
+      spinBtn.disabled = !enabled;
+      centerHubBtn.disabled = !enabled;
+      itemCountSlider.disabled = !enabled;
+      incrementBtn.disabled = !enabled;
+      decrementBtn.disabled = !enabled;
+      presetChips.forEach(btn => btn.disabled = !enabled);
+      
+      spinBtn.style.opacity = enabled ? '1' : '0.6';
+      centerHubBtn.style.opacity = enabled ? '1' : '0.6';
+    }
+
+    // Winner Calculation & Full Screen Reveal
+    function concludeSpin() {
+      toggleControls(true);
+
+      const arc = (2 * Math.PI) / totalItems;
+      // Needle apex is at top: 3*PI / 2
+      const topPointerRadian = (1.5 * Math.PI - currentAngle) % (2 * Math.PI);
+      const normalizedRadian = (topPointerRadian + 2 * Math.PI) % (2 * Math.PI);
+      const winningIndex = Math.floor(normalizedRadian / arc) + 1;
+
+      // Log & Update History
+      const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      history.unshift({ number: winningIndex, time: timestamp, pool: totalItems });
+      renderHistory();
+
+      // Audio & Vibration
+      playCelebrationChime();
+      if (navigator.vibrate) navigator.vibrate([40, 60, 100]);
+
+      // Confetti burst
+      confetti({
+        particleCount: 80,
+        spread: 90,
+        origin: { y: 0.5 },
+        colors: ['#fef08a', '#d4af37', '#10b981', '#6366f1']
+      });
+
+      // Display Full-Screen Number
+      colossalNumber.textContent = winningIndex;
+      colossalNumber.classList.remove('animate-colossal');
+      void colossalNumber.offsetWidth; // Force re-flow
+      colossalNumber.classList.add('animate-colossal');
+
+      winnerModal.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    // Render History Sheet
+    function renderHistory() {
+      historyBadge.textContent = history.length;
+      historyBadge.classList.toggle('hidden', history.length === 0);
+
+      if (history.length === 0) {
+        historyList.innerHTML = '<p class="text-xs text-slate-500 text-center py-6">No draws yet. Spin to record numbers.</p>';
+        return;
+      }
+
+      historyList.innerHTML = history.map((item, idx) => `
+        <div class="glass-card rounded-xl px-4 py-3 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="w-6 h-6 rounded-full bg-amber-400/20 text-amber-300 text-xs font-bold flex items-center justify-center">#${history.length - idx}</span>
+            <div>
+              <p class="text-sm font-black text-slate-100">Number ${item.number}</p>
+              <p class="text-[10px] text-slate-400 font-medium">${item.time} • Out of ${item.pool}</p>
+            </div>
+          </div>
+          <span class="text-lg font-black text-amber-400">${item.number}</span>
+        </div>
+      `).join('');
+    }
+
+    // Touch Swipe / Flick on Canvas
+    let touchStartY = 0;
+    let touchStartTime = 0;
+
+    canvas.addEventListener('touchstart', (e) => {
+      if (isSpinning) return;
+      touchStartY = e.touches[0].clientY;
+      touchStartTime = performance.now();
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', (e) => {
+      if (isSpinning) return;
+      const deltaY = touchStartY - e.changedTouches[0].clientY;
+      const deltaTime = performance.now() - touchStartTime;
+      const speed = Math.abs(deltaY) / deltaTime;
+
+      if (speed > 0.45) {
+        triggerSpin(Math.min(0.48, Math.max(0.24, speed * 0.16)));
+      }
+    }, { passive: true });
+
+    // Item Count Change Handler
+    function updateItemCount(val) {
+      if (isSpinning) return;
+      totalItems = Math.min(100, Math.max(2, parseInt(val, 10)));
+      itemCountSlider.value = totalItems;
+      itemCountDisplay.textContent = totalItems;
+
+      presetChips.forEach(btn => {
+        const isSelected = parseInt(btn.dataset.preset, 10) === totalItems;
+        btn.classList.toggle('bg-amber-500/20', isSelected);
+        btn.classList.toggle('text-amber-300', isSelected);
+        btn.classList.toggle('border', isSelected);
+        btn.classList.toggle('border-amber-400/30', isSelected);
+        btn.classList.toggle('bg-slate-800/80', !isSelected);
+        btn.classList.toggle('text-slate-300', !isSelected);
+      });
+
+      drawWheel();
+    }
+
+    // Event Listeners
+    spinBtn.addEventListener('click', () => triggerSpin());
+    centerHubBtn.addEventListener('click', () => triggerSpin());
+
+    spinAgainBtn.addEventListener('click', () => {
+      winnerModal.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(() => triggerSpin(), 250);
+    });
+
+    winnerModal.addEventListener('click', (e) => {
+      if (e.target === winnerModal) {
+        winnerModal.classList.add('opacity-0', 'pointer-events-none');
+      }
+    });
+
+    soundToggle.addEventListener('click', () => {
+      initAudio();
+      soundEnabled = !soundEnabled;
+      soundIcon.classList.toggle('opacity-40', !soundEnabled);
+    });
+
+    // History Sheet Modal Toggles
+    openHistoryBtn.addEventListener('click', () => {
+      historySheet.classList.remove('opacity-0', 'pointer-events-none');
+      historySheetContent.classList.remove('translate-y-full');
+    });
+
+    historySheet.addEventListener('click', (e) => {
+      if (e.target === historySheet) {
+        historySheet.classList.add('opacity-0', 'pointer-events-none');
+        historySheetContent.classList.add('translate-y-full');
+      }
+    });
+
+    clearHistoryBtn.addEventListener('click', () => {
+      history = [];
+      renderHistory();
+    });
+
+    toggleSettingsBtn.addEventListener('click', () => {
+      settingsPanel.classList.toggle('hidden');
+    });
+
+    itemCountSlider.addEventListener('input', (e) => updateItemCount(e.target.value));
+    incrementBtn.addEventListener('click', () => updateItemCount(totalItems + 1));
+    decrementBtn.addEventListener('click', () => updateItemCount(totalItems - 1));
+
+    presetChips.forEach(btn => {
+      btn.addEventListener('click', () => updateItemCount(btn.dataset.preset));
+    });
+
+    // Spacebar shortcut
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !isSpinning) {
+        e.preventDefault();
+        triggerSpin();
+      }
+    });
+
+    // Init
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('DOMContentLoaded', () => {
+      resizeCanvas();
+      renderHistory();
+    });
+  </script>
+</body>
+</html>
 
